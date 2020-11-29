@@ -1,0 +1,3 @@
+#    Make capes part of 3d Armor when enabled
+capes_add_to_3darmor (Add Capes to 3d Armor) bool true
+
