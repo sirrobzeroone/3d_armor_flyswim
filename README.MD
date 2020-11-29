@@ -30,7 +30,7 @@ without 3d_armor this mod does nothing.
 
 Don't forget to delete "i_example_cape.lua" before using in a game, although I didn't create a reciepe for it so you would need creative/give access to get one.
 
-![auroch render](https://github.com/sirrobzeroone/Animal_Models/blob/main/Auroch%20(Cow%20Ancestor)/Auroch_family_picture.png)
+![auroch render](https://github.com/sirrobzeroone/3d_armor_flyswim/blob/main/swimming_animated.gif)
 
 ---------------------------
 ## Why are Capes Included?     
