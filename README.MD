@@ -49,7 +49,7 @@ Capes provide minimal additional armor, about half as much as wooden boots by de
 ---------------------------
 ## What nodes are set as Flyable/Swimmable?       
 ---------------------------
-###Flyable
+### Flyable
 "air"
 "default:cloud"
 
