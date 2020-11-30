@@ -49,33 +49,6 @@ Capes provide minimal additional armor, about half as much as wooden boots by de
 ---------------------------
 ## What nodes are set as Flyable/Swimmable?       
 ---------------------------
-### Flyable
-"air"
-"default:cloud"
+Any node which has the drawtype set as "airlike", "liquid" and "flowingliquid" will automatically be flyable or swimmable.
 
-### Swimmable
-"default:water_source"
-"default:water_flowing"
-"default:river_water_source"
-"default:river_water_flowing"
-"default:lava_source"
-"default:lava_flowing"
-			
-Given the way the checks are done there is no need to remove these names if they don't exist in your game/world, simply make sure to add the
-flyable and swimmable blocks for your game/world.
-
----------------------------
-## How to add more Flyable/Swimmable Node Types?       
----------------------------
-To add additional nodes that are swimmable or flyable either add there names directly to "i_nodes_fly_swim.lua"
-or if I've written them correctly you should be able to use these directly in your mod:
-
-### For flyable
-armor_sf.add_flyable("modname:nodename")
-
-eg armor_sf.add_flyable("gases:hydrogen")
-
-### For Swimmable
-armor_sf.add_swimmable("modname:nodename")
-
-eg armor_sf.add_swimmable("color_water:green_water")
+Big thanks to Gundul for pointing out a better way to do this.

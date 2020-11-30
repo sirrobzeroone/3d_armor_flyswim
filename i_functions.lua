@@ -7,39 +7,25 @@
 --      \/             \/     \/                    \/     \/   --
 ------------------------------------------------------------------
 
-armor_sf={}
-----------------------------
--- add swimmable block    --
-----------------------------
-armor_sf.add_swimmable = function(name)
-	table.insert(swimmable, name)
-end
-
-----------------------------
---   add flyable block    --
-----------------------------
-armor_sf.add_flyable = function(name)
-	table.insert(flyable, name)
-end
-
-----------------------------
--- Check node fly/swim    --
-----------------------------
-function node_fsable(n_name,type)
-	local compare = flyable	
+----------------------------------------
+-- Check node fly/swim by drawtype    --
+--          Thanks Gundul             -- 
+----------------------------------------
+function node_fsable(n_draw,type)
+	
+	local draw_ta = {"airlike"}
+	local draw_tl = {"liquid","flowingliquid"}
+	local compare = draw_ta
 		if type == "s" then
-			compare = swimmable
-		end
-		
+			compare = draw_tl
+		end		
 		for k,v in ipairs(compare) do 
-			if n_name == v then
+			if n_draw == v then
 				return true
 			end
 		end
 	return false
 end
-
-
 
 
 
