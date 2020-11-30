@@ -57,11 +57,11 @@ Big thanks to Gundul for pointing out a better way to do this.
 ## Headanimation is incorporated      
 --------------------------------------------
 I have incorporated "headanim" mod content by LoneWolfHT as it was easier to include and then customise for this mod than try to interface
-with "headanim. Full credit to LoneWolfHT for the functionality. I did modify the functionality a little so:
+with "headanim". Full credit to LoneWolfHT for the functionality. I did modify the functionality a little so:
 
-~ Regular animations when looking down Sams chin now rests on his chest (about a 60 degree angle)
-~ Regular animatiosn when looking up Sam only bends head back to the same 60 degrees
-~ Swimming and flying you can look down full 90 degrees, straight ahead 0 degrees, however up is restricted to 30 degrees back.
+~ Regular animations when looking down Sams chin now rests on his chest (about a 60 degree angle).  
+~ Regular animatiosn when looking up Sam only bends head back to the same 60 degrees.   
+~ Swimming and flying you can look down full 90 degrees, straight ahead 0 degrees, however up is restricted to 30 degrees back.  
 
 Make sure you disable "headanim" if you have it installed, although I found no serious issues with both enabled the mods
 could fight one another for control of head position.
