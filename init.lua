@@ -117,6 +117,7 @@ minetest.register_globalstep(function()
 		local node_bb = minetest.get_node({x=pos.x,y=pos.y -2,z=pos.z})  -- Next node down
 		local node_bbb = minetest.get_node({x=pos.x,y=pos.y -3,z=pos.z}) -- Next node down (falling starts later)
 		local node_bbbb = minetest.get_node({x=pos.x,y=pos.y -4,z=pos.z})-- Next node down (falling starts later)
+		local offset = 0                                                 -- Used for Headanim	
 		
 		if (controls.up or controls.down or 
 		   controls.left or controls.right) and                          -- Must be moving in a direction
@@ -124,12 +125,14 @@ minetest.register_globalstep(function()
 		   node_fsable(node.name,"s") == true and                        -- Node player standing in must be swimmable
 		   node_fsable(node_b.name,"s") == true then                     -- Node below must be swimmable
 			player_api.set_animation(player,"swim_atk",ani_spd)			 -- Set to swimming attack animation
+			offset = 90                                                  -- Offset for Headanim
 			
 		elseif (controls.up or controls.down or 
 		    controls.left or controls.right) and                         -- Must be moving in a direction
 		    node_fsable(node.name,"s") == true and                       -- Node player standing in must be swimmable
 		    node_fsable(node_b.name,"s") == true then                    -- Node below must be swimmable
-			player_api.set_animation(player, "swim",ani_spd) 			 -- Set to swimming animation
+				player_api.set_animation(player, "swim",ani_spd) 		 -- Set to swimming animation
+				offset = 90                                              -- Offset for Headanim
 			
 		elseif not attached_to and privs.fly == true then                -- If player attached to something dont do flying animation 		
 			if(controls.up or controls.down or                           -- must also have fly privs or we should definitly be falling.
@@ -138,14 +141,16 @@ minetest.register_globalstep(function()
 		      node_fsable(node.name,"a") == true and                     -- Node player is standing in must be flyable
 			  node_fsable(node_b.name,"a") == true and                   -- node below must be flyable
 			  node_fsable(node_bb.name,"a") == true  then                -- node 2 down must be flyable
-		      player_api.set_animation(player, "fly_atk",ani_spd)		 -- Show fly attack animation
+				player_api.set_animation(player, "fly_atk",ani_spd)		 -- Show fly attack animation
+			  	offset = 90                                              -- Offset for Headanim
 						
 			elseif(controls.up or controls.down or 
 			  controls.left or controls.right) and                       -- Must be moving in a direction
 		      node_fsable(node.name,"a") == true and                     -- Node player is standing in must be flyable
 			  node_fsable(node_b.name,"a") == true and                   -- node below must be flyable
 			  node_fsable(node_bb.name,"a") == true  then                -- node 2 down must be flyable
-		      player_api.set_animation(player, "fly",ani_spd)			 -- Show fly animation or swan dive if falling
+				player_api.set_animation(player, "fly",ani_spd)			 -- Show fly animation or swan dive if falling
+			  	offset = 90                                              -- Offset for Headanim
 			end	
 			
 		elseif not attached_to then                                      -- If player attached to something dont do falling animation		
@@ -155,16 +160,33 @@ minetest.register_globalstep(function()
 			  node_fsable(node_bb.name,"a") == true  and                 -- node 2 down must be flyable/fallable
 			  node_fsable(node_bbb.name,"a") == true and                 -- node 3 down must be flyable/fallable
 			  node_fsable(node_bbbb.name,"a") == true  then              -- node 4 down must be flyable/fallable
-		      player_api.set_animation(player, "fall_atk",ani_spd)		 -- falling and flailing around
+				player_api.set_animation(player, "fall_atk",ani_spd)	 -- falling and flailing around
+			  	offset = 90                                              -- Offset for Headanim
 						
 			elseif node_fsable(node.name,"a") == true and                -- Node player is standing in must be flyable/fallable
 			  node_fsable(node_b.name,"a") == true and                   -- node below must be flyable/fallable
 			  node_fsable(node_bb.name,"a") == true  and                 -- node 2 down must be flyable/fallable
 			  node_fsable(node_bbb.name,"a") == true and                 -- node 3 down must be flyable/fallable
 			  node_fsable(node_bbbb.name,"a") == true  then              -- node 4 down must be flyable/fallable
-		      player_api.set_animation(player, "fall",ani_spd)			 -- falling
+				player_api.set_animation(player, "fall",ani_spd)		 -- falling
+			  	offset = 90                                              -- Offset for Headanim
 			end				
 		end
+				
+		local look_degree = -math.deg(player:get_look_vertical())       -- Kept this near headanim code
+		
+		if look_degree > 29 and offset ~= 0 then                        -- When looking up and fly/Swim head will only tilt back 30degrees
+			offset = offset - (look_degree-30)
+
+		elseif look_degree > 60 and offset == 0 then                    -- When standing etc looking up stops at 60 degrees
+			offset = offset - (look_degree-60)
+
+		elseif look_degree < -60 and offset == 0 then                   -- When standing etc looking down stops at -60 degrees
+			offset = offset - (look_degree+60)			
+		end		
+		-- Code by LoneWolfHT - Headanim mod MIT Licence --
+		player:set_bone_position("Head", vector.new(0, 6.35, 0),vector.new(look_degree + offset, 0, 0))
+	    -- Code by LoneWolfHT - Headanim mod MIT Licence --	
 	end
 end)
 

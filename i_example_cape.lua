@@ -10,7 +10,6 @@
 		on_equip = function(player)
 					local privs = minetest.get_player_privs(player:get_player_name())				
 					privs.fly = true
-					minetest.chat_send_player(player:get_player_name(),tostring(privs.fly))
 					minetest.set_player_privs(player:get_player_name(), privs)
 				  end,
 				  
