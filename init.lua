@@ -122,7 +122,7 @@ minetest.register_globalstep(function()
 		local node_bbbb = minetest.get_node({x=pos.x,y=pos.y -4,z=pos.z})-- Next node down (falling starts later)
 			  node_bbbb = minetest.registered_nodes[node_bbbb.name].drawtype-- Set node to node drawtype		
 		local offset = 0                                                 -- Used for Headanim	
-		
+
 		if (controls.up or controls.down or 
 		   controls.left or controls.right) and                          -- Must be moving in a direction
 		   (controls.LMB or controls.RMB) and                            -- Must be swinging
@@ -176,22 +176,26 @@ minetest.register_globalstep(function()
 			  	offset = 90                                              -- Offset for Headanim
 			end				
 		end
+		
+		local check_v = minetest.is_creative_enabled                     -- this function was added in 5.3 which has the bone position change break animations fix - i think (MT #9807)
+		                                                                 -- I'm not too sure how to directly test for the bone fix so I simply check for this function.
+
+			if check_v ~= nil then                                       -- If creative_enabled function is nil we are pre-5.3
+				local look_degree = -math.deg(player:get_look_vertical())-- Kept this near code				
+				if look_degree > 29 and offset ~= 0 then
+					offset = offset - (look_degree-30)
+
+				elseif look_degree > 60 and offset == 0 then
+					offset = offset - (look_degree-60)
+
+				elseif look_degree < -60 and offset == 0 then
+					offset = offset - (look_degree+60)			
+				end
 				
-		local look_degree = -math.deg(player:get_look_vertical())       -- Kept this near code
-		
-		if look_degree > 29 and offset ~= 0 then
-			offset = offset - (look_degree-30)
-
-		elseif look_degree > 60 and offset == 0 then
-			offset = offset - (look_degree-60)
-
-		elseif look_degree < -60 and offset == 0 then
-			offset = offset - (look_degree+60)			
-		end
-		
-		-- Code by LoneWolfHT - Headanim mod MIT Licence --
-		player:set_bone_position("Head", vector.new(0, 6.35, 0),vector.new(look_degree + offset, 0, 0))
-	    -- Code by LoneWolfHT - Headanim mod MIT Licence --	
+				-- Code by LoneWolfHT - Headanim mod MIT Licence --
+				player:set_bone_position("Head", vector.new(0, 6.35, 0),vector.new(look_degree + offset, 0, 0))
+				-- Code by LoneWolfHT - Headanim mod MIT Licence --	
+			end
 	end
 end)
 
