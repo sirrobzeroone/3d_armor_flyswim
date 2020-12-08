@@ -54,7 +54,7 @@ Any node which has the drawtype set as "airlike", "liquid" and "flowingliquid" w
 Big thanks to Gundul for pointing out a better way to do this.
 
 --------------------------------------------
-## Headanimation is incorporated      
+## Headanimation is incorporated - 5.3+ only      
 --------------------------------------------
 I have incorporated "headanim" mod content by LoneWolfHT as it was easier to include and then customise for this mod than try to interface
 with "headanim". Full credit to LoneWolfHT for the functionality. I did modify the functionality a little so visually when in 3rd person view 
