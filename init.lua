@@ -26,14 +26,31 @@
 ----------------------------
 local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
-local add_capes = minetest.setting_getbool("capes_add_to_3darmor")   
+local add_capes = minetest.setting_getbool("capes_add_to_3darmor")
+local example_cape = minetest.setting_getbool("example_cape")
+local fly_anim = minetest.setting_getbool("fly_anim")
+local fall_anim = minetest.setting_getbool("fall_anim")
+local fall_tv = minetest.setting_getbool("fall_tv") or 100
+	  fall_tv = -1*(fall_tv/3.7)                             -- Convert kp/h back to number of -y blocks per 0.05 of a second.
+local swim_anim = minetest.setting_getbool("swim_anim")
+local swim_sneak = minetest.setting_getbool("swim_sneak")
+local climb_anim = minetest.setting_getbool("climb_anim")
+local crouch_anim = minetest.setting_getbool("crouch_anim")
+local crouch_sneak = minetest.setting_getbool("crouch_sneak")
+ 
+-- catch setting nil, need "if" as boolean 
+if add_capes    == nil then add_capes    = true end 
+if example_cape == nil then example_cape = true end 
+if fly_anim     == nil then fly_anim     = true end 
+if fall_anim    == nil then fall_anim    = true end 
+if swim_anim    == nil then swim_anim    = true end 
+if swim_sneak   == nil then swim_sneak   = true end 
+if climb_anim   == nil then climb_anim   = true end 
+if crouch_anim  == nil then crouch_anim  = true end 
+if crouch_sneak == nil then crouch_sneak = true end 
+
 local d_fall_anim = 0                                        -- Stop fall animation from playing after pressing shift_dwn 
                                                              -- and flying otherwise looks funny flicking to falling.
-
-if add_capes == nil then                                     -- To cover mod.conf/settings update issue
-	add_capes = true
-end
-
 -------------------------------------
 -- Adding new armor item for Capes --
 -------------------------------------
@@ -50,7 +67,7 @@ end
 ----------------------------
 dofile(modpath .. "/i_functions.lua")                        -- Functions
 
-if add_capes == true then
+if example_cape == true and add_capes == true then
 	dofile(modpath .. "/i_example_cape.lua")                 -- Example Cape
 end
 -------------------------------------
@@ -81,7 +98,7 @@ default.player_register_model(player_mod, {
 		mine =		{x=189, y=198},
 		walk_mine = {x=200, y=219},
 		sit = 		{x=81, y=160},
-		swim =		{x=246,y=279}, 
+		swim =		{x=246, y=279}, 
 		swim_atk =  {x=285, y=318},
 		fly =		{x=325, y=334},
 		fly_atk =   {x=340, y=349},
@@ -105,21 +122,23 @@ minetest.register_on_joinplayer(function(player)
 end)
 
 ------------------------------------------------
---  Global step to check if we player meets   --
--- Conditions for Swimming or Flying(falling) --
+--    Global step to check if player meets    --
+-- Conditions for Swimming, Flying(falling)   --
+--          Crouching and Climbing            --
 ------------------------------------------------
 minetest.register_globalstep(function()
 	for _, player in pairs(minetest.get_connected_players()) do
-		local controls = player:get_player_control()                     -- Get button presses
-		local ani_spd = 30                                               -- Default animation speed
+		local controls = player:get_player_control()                      -- Get button presses
+		local ani_spd = 30                                                -- Default animation speed
 		local name = player:get_player_name()
-		local attached_to = player:get_attach()                          -- If the players attached to something we need to know
-		local privs = minetest.get_player_privs(player:get_player_name())-- Privs crude attempt to differentiate potenital flying from falling
+		local attached_to = player:get_attach()                           -- If the players attached to something we need to know
+		local privs = minetest.get_player_privs(player:get_player_name()) -- Privs crude attempt to differentiate potenital flying from falling
 		local pos = player:get_pos()
 		local ladder_n = minetest.get_node(pos)
-		local ladder_n_b = minetest.get_node({x=pos.x,y=pos.y -1,z=pos.z})	
-		local offset = 0                                                 -- Used for Headanim
-		local is_slab = crouch_wa(player,pos)                            -- Function specifically for Crouch-walk work around
+		local ladder_n_b = minetest.get_node({x=pos.x,y=pos.y -1,z=pos.z})
+		local ladder_n_a = minetest.get_node({x=pos.x,y=pos.y +1,z=pos.z})
+		local offset = 0                                                  -- Used for Headanim
+		local is_slab = crouch_wa(player,pos)                             -- Function specifically for Crouch-walk work around
 		local cur_anim = player_api.get_animation(player)
 		local pmeta = player:get_meta()
 		
@@ -127,12 +146,12 @@ minetest.register_globalstep(function()
 		player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3}})
 		player:set_properties({eye_height = 1.47})
 			
-		if pmeta:get_int("flyswim_suss") == 1 then
+		if pmeta:get_int("flyswim_suss") == 1 then                       -- used to store and reset the players physics.speed settings back to what they were last global step.
 		   player:set_physics_override({speed = pmeta:get_float("flyswim_orgor")})
            pmeta:set_int("flyswim_suss", 0)		   
 		end
 
-		local vel = player:get_player_velocity()		
+		local vel = player:get_player_velocity()                         -- Need to replace this with get_velocity(), having issues making that work.		
 	    local play_s = (math.sqrt(math.pow(math.abs(vel.x),2) + 
 		                math.pow(math.abs(vel.y),2) + 
 						math.pow(math.abs(vel.z),2) ))*3.6               -- basically 3D Pythagorean Theorem km/h
@@ -146,7 +165,7 @@ minetest.register_globalstep(function()
 		-- Sets terminal velocity to about 100Kkm/hr beyond   --
         -- this speed chunk load issues become more noticable --
 		
-		if vel.y < -27  and controls.sneak ~= true then			
+		if vel.y < fall_tv  and controls.sneak ~= true then			
 			local tv_offset_y = -1*((-1*(vel.y+1)) + vel.y)               --(-1*(vel.y+1)) - catch those holding shift and over acceleratering when falling so dynamic end point so we dont bounce back up
 			                                                              -- Remove above replace with 27 and then acclerate down (hold shift) for 5-6 secs then let go you'll "bounce" back up :)			
 				player:add_player_velocity({x=0, y=tv_offset_y, z=0})	
@@ -155,26 +174,35 @@ minetest.register_globalstep(function()
         ---------------------------------------------------------
 		--            Start of Animation Cases                 --
         ---------------------------------------------------------
------------------------------
---stop standing under slabs--
------------------------------				
+-------------------------------
+-- stop standing under slabs --
+-------------------------------	                                          -- Whole section WIP needs cleanup			
 		local ch = minetest.get_node({x=pos.x,y=pos.y+1,z=pos.z})
 		local ch_g = minetest.registered_nodes[ch.name].groups
+		local ch_d = minetest.registered_nodes[ch.name].drawtype
 		local ch_slab = 0
+		local ch_node = 0
 		for k,v in pairs(ch_g) do
 			if k == "slab" then                                
 				ch_slab = 1                                     
-			end
+			end				
 		end	
+		
+		if ch_d ~= "liquid" and ch_d ~= "flowingliquid" and ch_d ~= "airlike" then
+			ch_node=1
+		end
 
-		if ch_slab == 1 and
+		if crouch_sneak == true and
+		   ch_slab == 1 and
 		   node_fsable(pos,2,"a") ~= true and
 		   controls.sneak ~= true and
 		   (controls.up == true or                                 
      		controls.down == true or                          
 			controls.left == true or 
 			controls.right == true) then
-				player_api.set_animation(player, "duck",ani_spd/2)
+				if crouch_anim == true then
+					player_api.set_animation(player, "duck",ani_spd/2)
+				end
 				player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.45, 0.3}})
 				player:set_properties({eye_height = 1.27})
 				
@@ -183,26 +211,43 @@ minetest.register_globalstep(function()
 				pmeta:set_float("flyswim_orgor", play_or_2.speed)
                 player:set_physics_override({speed = play_or_2.speed*0.2})
 				
-		elseif ch_slab == 1 and
-		   node_fsable(pos,2,"a") ~= true and
-		   controls.sneak ~= true and
-		   (controls.up ~= true or                                 
-     		controls.down ~= true or                          
-			controls.left ~= true or 
-			controls.right ~= true) then
-				player_api.set_animation(player, "duck_std",ani_spd)
-				player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.45, 0.3}})
-				player:set_properties({eye_height = 1.27})   
+		elseif crouch_sneak == true and 
+		       ch_slab == 1 and
+			   node_fsable(pos,2,"a") ~= true and
+			   controls.sneak ~= true and
+			   (controls.up ~= true or                                 
+				controls.down ~= true or                          
+				controls.left ~= true or 
+				controls.right ~= true) then
+				
+				if crouch_anim == true then
+					player_api.set_animation(player, "duck_std",ani_spd/2)
+				end
+					player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.45, 0.3}})
+					player:set_properties({eye_height = 1.27}) 
+
+		elseif swim_sneak == true and
+			   ch_node == 1 and
+			   node_down_fsable(pos,1,"s") == true and		   
+			   controls.sneak ~= true then
+				player_api.set_animation(player, "swim",ani_spd) 		 -- Set to swimming animation
+				player:set_properties({collisionbox = {-0.4, 0, -0.4, 0.4, 0.5, 0.4}})
+				player:set_properties({eye_height = 0.7}) 
+				offset = 90                                              -- Offset for Headanim
 			
 -----------------------------
 --      Climb Cases        --
 -----------------------------
-		elseif minetest.registered_nodes[ladder_n.name].climbable and     -- Player standing in node that is climable and	
-		(controls.jump or controls.sneak) then                            -- Moving up or Moving down
+		elseif climb_anim == true and                                    -- Climb animation setting must be true 
+		      minetest.registered_nodes[ladder_n.name].climbable and     -- Player standing in node that is climable and	
+		     (controls.jump or controls.sneak) then                      -- Moving up or Moving down
 		
-			if controls.sneak and                                         -- Climbing down but at bottom of the climable node
+			if controls.sneak and                                        -- Climbing down but at bottom of the climable node/s
 			   minetest.registered_nodes[ladder_n_b.name].climbable ~= true then			   
 			   -- #nothing
+			elseif controls.jump and                                     -- Climbing up but at top of the climable node/s
+			   minetest.registered_nodes[ladder_n_a.name].climbable ~= true then
+			   -- #nothing			   
 			else
 			 player_api.set_animation(player, "climb",ani_spd)           -- Do climbing animation
 			 --player:set_animation({x=410, y=429},30,0,true)            -- experimenting removing player_api dependancy
@@ -212,21 +257,23 @@ minetest.register_globalstep(function()
 -----------------------------
 --       Swim Cases        --
 -----------------------------	
-		elseif (controls.up or controls.down or 
+		elseif swim_anim == true and                                     -- Swim animation setting must be true 
+		   (controls.up or controls.down or 
 		   controls.left or controls.right) and                          -- Must be moving in a direction
 		   (controls.LMB or controls.RMB) and                            -- Must be swinging
 			node_down_fsable(pos,2,"s") == true then                     -- Node player standing in and 1 below must be swimmable
 			player_api.set_animation(player,"swim_atk",ani_spd)			 -- Set to swimming attack animation
 			offset = 90                                                  -- Offset for Headanim
 			
-		elseif (controls.up or controls.down or 
+		elseif swim_anim == true and                                     -- Swim animation setting must be true 
+		    (controls.up or controls.down or 
 		    controls.left or controls.right) and                         -- Must be moving in a direction
 			node_down_fsable(pos,2,"s") == true then                     -- Node player standing in and 1 below must be swimmable
 				player_api.set_animation(player, "swim",ani_spd) 		 -- Set to swimming animation
 				offset = 90                                              -- Offset for Headanim
 
 			
-		elseif
+		elseif swim_sneak == true and                                    -- Swim sneak setting must be true     
 			controls.sneak == true and
 			node_down_fsable(pos,1,"s") == true then                     -- Node player standing in swimmable
 				player_api.set_animation(player, "swim",ani_spd) 		 -- Set to swimming animation
@@ -241,44 +288,58 @@ minetest.register_globalstep(function()
     -- Crouch-walk workaround Start			                             -- This is to workaround the strange crouch-walk behaviour, 
 																		 -- can only walk halfway under 1st slab then stops,
 																		 -- This workaround allows walking through 1st strangly blocked slab
-		elseif controls.sneak == true and                                -- Must be sneaking
-			controls.up == true and                                      -- Must be moving forwards
-			node_fsable(pos,2,"a") ~= true and                           -- No air node below feet
-			play_s <= 1 and is_slab == 1 then                            -- Speed < 1 kph and node infront and up 1 must be slab see functions                      
+		elseif crouch_sneak == true and                                  -- Crouch animation setting must be true 
+		       controls.sneak == true and                                -- Must be sneaking
+			   controls.up == true and                                   -- Must be moving forwards
+			   node_fsable(pos,2,"a") ~= true and                        -- No air node below feet
+			   play_s <= 1 and is_slab == 1 then                         -- Speed < 1 kph and node infront and up 1 must be slab see functions                      
 
-				player_api.set_animation(player, "duck",ani_spd/2)       -- Set to duck/crouch animation	
+				if crouch_anim == true then
+					player_api.set_animation(player, "duck",ani_spd/2)   -- Set to duck/crouch animation
+				    player:set_properties({eye_height = 1.27})           -- eye hieght dropped a bit				
+				end       	
 				player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.0, 0.3}}) -- Workaround set collision box to 1 high
-				player:set_properties({eye_height = 1.27})               -- eye hieght dropped a bit
+              
     -- Crouch-walk workaround end
     ----------------------------------------------------------
 	
-		elseif controls.sneak == true and                                -- Must be sneaking
+		elseif (crouch_anim == true or crouch_sneak == true) and         -- if both false miss case 
+		    controls.sneak == true and                                   -- Must be sneaking
 			node_fsable(pos,2,"a") ~= true and                           -- No air node below feet		
 			(controls.up == true or                                      -- Moving in a direction otherwise we are standing
      		 controls.down == true or                          
 			 controls.left == true or 
 			 controls.right == true) then                       
 	
-				player_api.set_animation(player, "duck",ani_spd/2)	
-				player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.45, 0.3}})
-				player:set_properties({eye_height = 1.27})
+				if crouch_anim == true then
+					player_api.set_animation(player, "duck",ani_spd/2)
+					player:set_properties({eye_height = 1.27})
+				end
+				if crouch_sneak == true then
+					player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.45, 0.3}})
+				end
+				
 
-		elseif controls.sneak == true and                                -- Must be sneaking
+		elseif (crouch_anim == true or crouch_sneak == true) and         -- if both false miss case 
+		    controls.sneak == true and                                   -- Must be sneaking
 			node_fsable(pos,2,"a") ~= true and	                         -- No air node below feet	
 			(controls.up ~= true or                                      -- Not moving in any direction
      		 controls.down ~= true or                          
 			 controls.left ~= true or 
 			 controls.right ~= true) then                       
 	
-				player_api.set_animation(player, "duck_std",ani_spd)
-				player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.45, 0.3}})
-				player:set_properties({eye_height = 1.27})	
-
-
+				if crouch_anim == true then
+					player_api.set_animation(player, "duck_std",ani_spd/2)
+					player:set_properties({eye_height = 1.27})
+				end
+				if crouch_sneak == true then
+					player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.45, 0.3}})
+				end
 -----------------------------
 --      Flying Cases       --
 -----------------------------						
-		elseif not attached_to and privs.fly == true then                -- If player attached to something dont do flying animation 
+		elseif fly_anim == true and                                      -- Fly animation setting must be true  
+		    not attached_to and privs.fly == true then                   -- If player attached to something dont do flying animation 
 			if(controls.up or controls.down or                           -- must also have fly privs or we should definitly be falling.
 			  controls.left or controls.right) and                       -- Must be moving in a direction
 			  (controls.LMB or controls.RMB) and                         -- Must be swinging
@@ -287,14 +348,16 @@ minetest.register_globalstep(function()
 				player_api.set_animation(player, "fly_atk",ani_spd)		 -- Show fly attack animation
 			  	offset = 90                                              -- Offset for Headanim
 						
-			elseif(controls.up or controls.down or 
+			elseif fly_anim == true and                                  -- Fly animation setting must be true 
+			 (controls.up or controls.down or 
 			  controls.left or controls.right) and                       -- Must be moving in a direction
 		      node_down_fsable(pos,3,"a") == true and                    -- Node player is standing in must be flyable and 2 down
 			  (vel.y >= 0 or controls.sneak == true) then
 				player_api.set_animation(player, "fly",ani_spd)			 -- Show fly animation or swan dive if falling
 			  	offset = 90                                              -- Offset for Headanim
 				
-			elseif (controls.up or controls.down or 
+			elseif fly_anim == true and                                  -- Fly animation setting must be true 
+			  (controls.up or controls.down or 
 			  controls.left or controls.right) and                       -- Must be moving in a direction
 			  controls.sneak ~= true and                                 -- catch case to stop fall animation from playing
 			  d_fall_anim > 0 and                                        -- when player has been flying down
@@ -303,21 +366,23 @@ minetest.register_globalstep(function()
 				d_fall_anim = d_fall_anim - 1
 			  	offset = 90                                              -- Offset for Headanim
 			
-			elseif controls.sneak ~= true and                            -- catch case to stop fall animation from playing
+			elseif fly_anim == true and                                  -- Fly animation setting must be true 
+			  controls.sneak ~= true and                                 -- catch case to stop fall animation from playing
 			  d_fall_anim > 0 and                                        -- when player has been flying down
 		      node_down_fsable(pos,3,"a") == true then                   -- Node player is standing in must be flyable and 2 down
 				player_api.set_animation(player, "stand",ani_spd)	     -- Show fly down animation (add fly down animation)
 				d_fall_anim = d_fall_anim - 1
-			  	offset = 90                                              -- Offset for Headanim
 				
-			elseif controls.sneak ~= true and                            -- not pressing down and
+			elseif fall_anim == true and                                 -- Fall animation setting must be true 
+			  controls.sneak ~= true and                                 -- not pressing down and
 			  vel.y < 0 and                                              -- We have velocity downwards (negative y blocks)
 			  (controls.LMB or controls.RMB) and                         -- Must be swinging			  
 		      node_down_fsable(pos,3,"a") == true then                   -- Node player is standing in must be flyable and 2 down
 				player_api.set_animation(player, "fall_atk",ani_spd)	 -- Show falling
 			  	offset = 90                                              -- Offset for Headanim
 			
-			elseif controls.sneak ~= true and                            -- not pressing down and
+			elseif fall_anim == true and                                 -- Fall animation setting must be true 
+			  controls.sneak ~= true and                                 -- not pressing down and
 			  vel.y < 0 and                                              -- We have velocity downwards (negative y blocks) 
 		      node_down_fsable(pos,3,"a") == true then                   -- Node player is standing in must be flyable and 2 down
 				player_api.set_animation(player, "fall",ani_spd)	     -- Show falling
@@ -328,7 +393,8 @@ minetest.register_globalstep(function()
 -----------------------------
 --      Falling Cases      --
 -----------------------------			
-		elseif not attached_to and 
+		elseif fall_anim == true and                                     -- Fall animation setting must be true 
+			not attached_to and 
 		    controls.sneak ~= true then                                  -- If player attached to something dont do falling animation		
 			if(controls.LMB or controls.RMB) and                         -- Must be swinging
 		      vel.y < -0.5 and                                           -- We have velocity downwards (negative y blocks) need 0.5 as slight engine in-accuracy when standing on cliff edge? 
@@ -336,7 +402,8 @@ minetest.register_globalstep(function()
 				player_api.set_animation(player, "fall_atk",ani_spd)	 -- falling and flailing around
 			  	offset = 90                                              -- Offset for Headanim
 						
-			elseif vel.y < -0.5 and                                      -- We have velocity downwards (negative y blocks) need 0.5 as slight engine in-accuracy when standing on cliff edge? 
+			elseif fall_anim == true and                                 -- Fall animation setting must be true 
+			  vel.y < -0.5 and                                           -- We have velocity downwards (negative y blocks) need 0.5 as slight engine in-accuracy when standing on cliff edge? 
 			  node_down_fsable(pos,5,"a") == true then                   -- Node player is standing in and 4 below must be flyable/fallable
 				player_api.set_animation(player, "fall",ani_spd)		 -- falling
 			  	offset = 90                                              -- Offset for Headanim			

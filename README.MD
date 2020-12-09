@@ -13,7 +13,7 @@
 ---------------------------
 This is a small utility mod which adds some new animations to the default 3d_armor animations, the new animations are:
 
-	|         | Start | End | FPS |
+	|Animation| Start | End | FPS |
 	|---------|-------|-----|-----|
 	|Swim     |  246  | 279 |  30 |
 	|Swim Atk |  285  | 318 |  30 |
@@ -21,16 +21,62 @@ This is a small utility mod which adds some new animations to the default 3d_arm
 	|Fly Atk  |  340  | 349 |  30 |
 	|Fall     |  355  | 364 |  30 |
 	|Fall Atk |  365  | 374 |  30 |
+	|Duck Std |  380  | 380 |  30 |
+	|Duck     |  381  | 399 |  30 |
+	|Climb    |  410  | 429 |  30 |
 	
+ 	
 		
 I have done my best to trigger the animations in the correct circumstances when viewing the player model in 3rd person. 
 
-I have only tested this against minetest version 5.3 however it should work with any 5.X version assuming 3d_armor makes no radical changes,
-without 3d_armor this mod does nothing.
+I have only tested this against minetest versions 5.0 to 5.3
 
-Don't forget to delete "i_example_cape.lua" before using in a game, although I didn't create a reciepe for it so you would need creative/give access to get one.
+without 3d_armor and its required mods this mod does nothing.
 
-![auroch render](https://github.com/sirrobzeroone/3d_armor_flyswim/blob/main/swimming_animated.gif)
+Don't forget to disable **example_cape** before using in a game, although I didn't create a reciepe for it so you would need creative/give access to get one.
+
+![swim animation](https://github.com/sirrobzeroone/3d_armor_flyswim/blob/main/swimming_animated.gif)
+
+---------------------------
+## Animation rules/triggers    
+---------------------------
+Swimming - You must be in at least 2 nodes depth of liquid/flowing liquid and moving otherwise your character will simply wade through the liquid or float (stand). If you sink close to the bottom while submerged in the liquid your character will automatically stand on the bottom. 
+
+Swim through - Hold shift down while swimming, you will sink but will also now be able to swim through 1x1 tunnels.
+
+Flying - Character/player must have fly_privs you must have at least 2 nodes of airlike nodes between you and the ground otherwise your character will simply/stand or walk ready to land. You also need some type of movement horizontally to trigger the animation otherwise your character will simply stand in the air to emulate hovering.
+
+Falling - Character/player must have 4 nodes of airlike nodes between them and the ground. Easiest to trigger if fly_privs have been removed but you can fall with fly_privs. Max falling speed is set by terminal velocity, however holding shift down will let you exceed terminal velocity.
+
+Crouching - Press shift while standing in the open and then walk forward.
+
+Crouching under - Simply walk through a gap 1.5 nodes tall. Player/character must be facing the space and walking forwards.
+
+
+---------------------------
+## Turn off Animation or Crouch Rule    
+---------------------------
+From MT Main Menu go to "Settings" then "All Settings" then "Mods" then "3d_armor_flyswim"
+
+**capes_add_to_3darmor** - Default is enabled - Makes capes an armor item avaliable via 3d_armor (1 test cape included)
+
+**example_cape** - Default is enabled - The example cape "Someones Cape" is avaliable which grants fly_privs when worn and a 100% speed increase
+
+**fly_anim** - Default is enabled - Will show the flying animation
+
+**fall_anim** - Default is enabled - Will show the falling animation
+
+**fall_tv** - Default is 100 - This is terminal velocity, 100 represents approximatly 100kp/h however player/character speed will oscilate around this speed. Without this limit when falling characters simply accelerate endlessly (until they hit chunk load edge). 
+
+**swim_anim** - Default is enabled - Will show swim animation
+
+**swim_sneak** - Default is enabled - Will allow character/player to swim through a hole 1x1 in size when underwater. 
+
+**climb_anim** - Default is enabled - Will show climb animation
+
+**crouch_anim** - Default is enabled - Will show crouch/duck animation
+
+**crouch_sneak** - Default is enabled - Will allow character/player to walk through a gap 1.5 nodes high when on land.
 
 ---------------------------
 ## Why are Capes Included?     
@@ -54,7 +100,7 @@ Any node which has the drawtype set as "airlike", "liquid" and "flowingliquid" w
 Big thanks to Gundul for pointing out a better way to do this.
 
 --------------------------------------------
-## Headanimation is incorporated - 5.3+ only      
+## Headanimation is incorporated      
 --------------------------------------------
 I have incorporated "headanim" mod content by LoneWolfHT as it was easier to include and then customise for this mod than try to interface
 with "headanim". Full credit to LoneWolfHT for the functionality. I did modify the functionality a little so visually when in 3rd person view 
