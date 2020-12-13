@@ -57,8 +57,6 @@ local d_fall_anim = 0                                        -- Stop fall animat
 if add_capes == true then
 	if minetest.global_exists("armor") and armor.elements then
 		table.insert(armor.elements, "capes")
-		local mult = armor.config.level_multiplier or 1
-		armor.config.level_multiplier = mult * 0.2
 	end
 end
 
