@@ -61,6 +61,6 @@
         minetest.register_craft({
 	        output = "3d_armor_flyswim:cape",
 	        recipe = {{"default:diamond","wool:cyan","default:diamond"},
-			      {"default:diamond","wool:cyan","default:diamond"},
+			      {"default:diamond","wool:white","default:diamond"},
 			      {"default:diamond","wool:cyan","default:diamond"}}
         })
