@@ -20,6 +20,7 @@
 				  end,
 	})
 
+
 	armor:register_armor("3d_armor_flyswim:cape", {
 		description = "Just a Cape",
 		inventory_image = "3d_armor_flyswim_cape_inv.png",
