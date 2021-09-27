@@ -52,6 +52,7 @@ local compare = draw_ta
 		compare = draw_tl
 	end	
 		
+	local_ndraw
 	for k,v in pairs(nodes) do
 		n_draw = minetest.registered_nodes[v.name].drawtype
 			for k2,v2 in ipairs(compare) do 
