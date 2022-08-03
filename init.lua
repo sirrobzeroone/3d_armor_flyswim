@@ -26,8 +26,10 @@
 ----------------------------
 local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
-local add_capes = minetest.settings:get_bool("capes_add_to_3darmor" ,true)
-local example_cape = minetest.settings:get_bool("example_cape" ,true)
+local armor_fly_swim = {}
+
+local add_capes = minetest.settings:get_bool("capes_add_to_3darmor" ,false)
+local example_cape = minetest.settings:get_bool("example_cape" ,false)
 local fly_anim = minetest.settings:get_bool("fly_anim" ,true)
 local fall_anim = minetest.settings:get_bool("fall_anim" ,true)
 local fall_tv = tonumber(minetest.settings:get("fall_tv" ,true)) or 100
@@ -39,7 +41,13 @@ local crouch_anim = minetest.settings:get_bool("crouch_anim" ,true)
 local crouch_sneak = minetest.settings:get_bool("crouch_sneak" ,true)
  
 local d_fall_anim = 0                                        -- Stop fall animation from playing after pressing shift_dwn 
-                                                             -- and flying otherwise looks funny flicking to falling.
+                                                            -- and flying otherwise looks funny flicking to falling.
+-----------------------															
+-- Condittional mods --
+-----------------------															
+armor_fly_swim.is_3d_armor = minetest.get_modpath("3d_armor")
+armor_fly_swim.is_skinsdb  = minetest.get_modpath("skinsdb")
+															
 -------------------------------------
 -- Adding new armor item for Capes --
 -------------------------------------
@@ -60,24 +68,31 @@ end
 -------------------------------------
 --     Set Player model to use     --
 -------------------------------------
-local player_mod = "3d_armor_character_sfc.b3d"              -- Swim, Fly and Capes
+local player_mod = "character_sf.b3d"              		-- Swim, Fly
+local texture = {"character.png", "3d_armor_trans.png"}
 
-if add_capes ~= true then
-	player_mod = "3d_armor_character_sf.b3d"                 -- Swim Fly
-
+if armor_fly_swim.is_3d_armor and not add_capes then
+	player_mod = "3d_armor_character_sf.b3d"            -- Swim Fly
+	texture = {armor.default_skin..".png", "3d_armor_trans.png", "3d_armor_trans.png"}
 end
+
+if armor_fly_swim.is_3d_armor and add_capes then
+	player_mod = "3d_armor_character_sfc.b3d"			-- Swim Fly Capes
+	texture = {armor.default_skin..".png", "3d_armor_trans.png", "3d_armor_trans.png"}
+end
+
+if armor_fly_swim.is_skinsdb then 
+	player_mod = "skinsdb_3d_armor_character_5.b3d"		-- Swim Fly Capes
+	texture = {"blank.png", "blank.png", "blank.png", "blank.png"}
+end	
+
 
 --------------------------------------
 -- Player model with Swim/Fly/Capes --
 --------------------------------------
-
-default.player_register_model(player_mod, {
+player_api.register_model(player_mod, {
 	animation_speed = 30,
-	textures = {
-		armor.default_skin..".png",
-		"3d_armor_trans.png",
-		"3d_armor_trans.png",
-	},	
+	textures = texture,	
 	animations = {
 		stand =		{x=0, y=79},
 		lay =		{x=162, y=166},
@@ -96,7 +111,6 @@ default.player_register_model(player_mod, {
 		climb =     {x=410, y=429},   
 	},
 })
-
 ----------------------------------------
 -- Setting model on join and clearing --
 --          local_animations          --  
