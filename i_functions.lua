@@ -18,8 +18,14 @@ function node_fsable(pos,num,type)
 	local draw_tl = {"liquid","flowingliquid"}
 	local compare = draw_ta
 	local node = minetest.get_node({x=pos.x,y=pos.y-(num-1),z=pos.z})
-	local n_draw = minetest.registered_nodes[node.name].drawtype
-		
+	local n_draw
+	
+	if minetest.registered_nodes[node.name] then
+		n_draw = minetest.registered_nodes[node.name].drawtype
+	else
+		n_draw = "normal"
+	end
+	
 		if type == "s" then
 			compare = draw_tl
 		end
@@ -54,7 +60,14 @@ local compare = draw_ta
 		
 	local n_draw
 	for k,v in pairs(nodes) do
-		n_draw = minetest.registered_nodes[v.name].drawtype
+		local n_draw
+		
+		if minetest.registered_nodes[v.name] then
+			n_draw = minetest.registered_nodes[v.name].drawtype
+		else
+			n_draw = "normal"
+		end
+		
 			for k2,v2 in ipairs(compare) do 
 				if n_draw == v2 then
 				  	table.insert(result,"t")

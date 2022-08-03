@@ -244,15 +244,17 @@ minetest.register_globalstep(function()
 -----------------------------
 --       Swim Cases        --
 -----------------------------	
-		elseif swim_anim == true and                                     -- Swim animation setting must be true 
+		elseif swim_anim == true and                                     -- Swim animation setting must be true
+			not attached_to and 									     -- If player attached to something dont do animation 
 		   (controls.up or controls.down or 
 		   controls.left or controls.right) and                          -- Must be moving in a direction
 		   (controls.LMB or controls.RMB) and                            -- Must be swinging
-			node_down_fsable(pos,2,"s") == true then                     -- Node player standing in and 1 below must be swimmable
+			node_down_fsable(pos,2,"s") == true then 					 -- Node player standing in and 1 below must be swimmable                   
 			player_api.set_animation(player,"swim_atk",ani_spd)			 -- Set to swimming attack animation
 			offset = 90                                                  -- Offset for Headanim
 			
 		elseif swim_anim == true and                                     -- Swim animation setting must be true 
+			  not attached_to and 									     -- If player attached to something dont do animation 
 		    (controls.up or controls.down or 
 		    controls.left or controls.right) and                         -- Must be moving in a direction
 			node_down_fsable(pos,2,"s") == true then                     -- Node player standing in and 1 below must be swimmable
@@ -260,7 +262,8 @@ minetest.register_globalstep(function()
 				offset = 90                                              -- Offset for Headanim
 
 			
-		elseif swim_sneak == true and                                    -- Swim sneak setting must be true     
+		elseif swim_sneak == true and                                    -- Swim sneak setting must be true
+			  not attached_to and 									     -- If player attached to something dont do animation 
 			controls.sneak == true and
 			node_down_fsable(pos,1,"s") == true then                     -- Node player standing in swimmable
 				player_api.set_animation(player, "swim",ani_spd) 		 -- Set to swimming animation

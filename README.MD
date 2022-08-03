@@ -29,9 +29,11 @@ This is a small utility mod which adds some new animations to the default 3d_arm
 		
 I have done my best to trigger the animations in the correct circumstances when viewing the player model in 3rd person. 
 
-I have only tested this against minetest versions 5.0 to 5.3
+I have only tested this against minetest versions 5.0 to 5.5
 
 without 3d_armor and its required mods this mod does nothing.
+
+Works with simple_skins - https://forum.minetest.net/viewtopic.php?f=11&t=9100
 
 Don't forget to disable **example_cape** before using in a game, although I didn't create a reciepe for it so you would need creative/give access to get one.
 
