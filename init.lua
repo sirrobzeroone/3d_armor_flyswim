@@ -62,7 +62,7 @@ end
 ----------------------------
 dofile(modpath .. "/i_functions.lua")                        -- Functions
 
-if example_cape == true and add_capes == true then
+if example_cape == true and add_capes and armor_fly_swim.is_3d_armor == true then
 	dofile(modpath .. "/i_example_cape.lua")                 -- Example Cape
 end
 -------------------------------------
@@ -71,12 +71,12 @@ end
 local player_mod = "character_sf.b3d"              		-- Swim, Fly
 local texture = {"character.png", "3d_armor_trans.png"}
 
-if armor_fly_swim.is_3d_armor and not add_capes then
+if armor_fly_swim.is_3d_armor and not add_capes and not armor_fly_swim.is_skinsdb  then
 	player_mod = "3d_armor_character_sf.b3d"            -- Swim Fly
 	texture = {armor.default_skin..".png", "3d_armor_trans.png", "3d_armor_trans.png"}
 end
 
-if armor_fly_swim.is_3d_armor and add_capes then
+if armor_fly_swim.is_3d_armor and add_capes and not armor_fly_swim.is_skinsdb then
 	player_mod = "3d_armor_character_sfc.b3d"			-- Swim Fly Capes
 	texture = {armor.default_skin..".png", "3d_armor_trans.png", "3d_armor_trans.png"}
 end
