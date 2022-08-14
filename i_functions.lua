@@ -104,12 +104,15 @@ function crouch_wa(player,pos)
 		end
 
 	local check = minetest.get_node(pos_w)                       -- Get the node that is in front of the players look direction
-	local check_g = minetest.registered_nodes[check.name].groups -- Get the groups assigned to node                                             
-		for k,v in pairs(check_g) do
-			if k == "slab" then                                  -- Any of the keys == slab then slab
-				is_slab = 1                                      -- is_slab set to 1
-			end
-		end	
+	
+	if minetest.registered_nodes[check.name] then
+		local check_g = minetest.registered_nodes[check.name].groups -- Get the groups assigned to node                                             
+			for k,v in pairs(check_g) do
+				if k == "slab" then                                  -- Any of the keys == slab then slab
+					is_slab = 1                                      -- is_slab set to 1
+				end
+			end	
+	end
 	
 	return is_slab                                               -- return 1 or 0
 		
