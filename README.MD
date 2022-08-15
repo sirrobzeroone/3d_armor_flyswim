@@ -11,7 +11,7 @@
 ---------------------------
 ## Information
 ---------------------------
-This is a small utility mod which adds some new animations to the default 3d_armor animations, the new animations are:
+This is a small utility mod which adds some new animations to the default animations found in player_api animations, the new animations are:
 
 	|Animation| Start | End | FPS |
 	|---------|-------|-----|-----|
@@ -29,15 +29,46 @@ This is a small utility mod which adds some new animations to the default 3d_arm
 		
 I have done my best to trigger the animations in the correct circumstances when viewing the player model in 3rd person. 
 
-I have only tested this against minetest versions 5.0 to 5.5
+I have only tested this against minetest versions 5.0 to 5.6
 
-without 3d_armor and its required mods this mod does nothing.
+Mod now works with just player_api, 3d_armor is an optional depends.
 
 Works with simple_skins - https://forum.minetest.net/viewtopic.php?f=11&t=9100
 
-Don't forget to disable **example_cape** before using in a game, although I didn't create a reciepe for it so you would need creative/give access to get one.
+Works with skinsdb - https://forum.minetest.net/viewtopic.php?t=17899
+
+Works with clothing 2 - https://forum.minetest.net/viewtopic.php?p=395157
+
+When using skinsdb capes must be supplied by clothing 2. 
 
 ![swim animation](https://github.com/sirrobzeroone/3d_armor_flyswim/blob/main/swimming_animated.gif)
+
+---------------------------
+## Mod explanations and interactions   
+---------------------------
+**player_api**
+fly,swim,crouch,climb animations work, enabling capes will do nothing as you cant wear them
+
+Below here assumed you stil have player_api enabled/installed:
+
+**simple skins**
+fly,swim,crouch,climb animations work, enabling capes will do nothing as you cant wear them
+
+**3d_armor**
+You have the option to have capes on or off upto you, capes are considered armor
+
+**3d_armor and simple_skins**
+You have the option to have capes on or off upto you, capes are considered armor
+
+**skinsdb**
+Fly,swim,crouch,climb animations work, enabling capes will do nothing as you cant wear them
+
+**3d_armor and skinsdb**
+Fly,swim,crouch,climb animations work you can enable capes but they wont be visible on your character but will still provide any bonuses
+
+**3d_armor, skinsdb and clothing 2**
+Fly,swim,crouch,climb animations work, visual cape provided by clothing_2 however can also enable capes but they wont be visible and it's a bit strange wearing two capes. So recommened left disabled.
+
 
 ---------------------------
 ## Animation rules/triggers    
