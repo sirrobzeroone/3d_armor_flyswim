@@ -8,6 +8,64 @@
 ------------------------------------------------------------------
 
 ----------------------------------------
+-- Get Player model and textures
+
+function armor_fly_swim.get_player_model()
+	
+	local player_mod = "character_sf.b3d"              		-- Swim, Fly
+	local texture = {"character.png", 
+	                 "3d_armor_trans.png"}
+
+	if armor_fly_swim.is_3d_armor and 
+	   not armor_fly_swim.add_capes and 
+	   not armor_fly_swim.is_skinsdb  then
+	   
+		player_mod = "3d_armor_character_sf.b3d"            -- Swim Fly
+		texture = {armor.default_skin..".png", 
+			       "3d_armor_trans.png", 
+				   "3d_armor_trans.png"}
+	end
+
+	if armor_fly_swim.is_3d_armor and 
+	   armor_fly_swim.add_capes and 
+	   not armor_fly_swim.is_skinsdb then
+	   
+		player_mod = "3d_armor_character_sfc.b3d"			-- Swim Fly Capes
+		texture = {armor.default_skin..".png", 
+		           "3d_armor_trans.png", 
+				   "3d_armor_trans.png"}
+	end
+
+	if armor_fly_swim.is_skinsdb then 
+		player_mod = "skinsdb_3d_armor_character_5.b3d"		-- Swim Fly Capes
+		texture = {"blank.png", 
+		           "blank.png", 
+				   "blank.png", 
+				   "blank.png"}
+	end	
+
+	return player_mod,texture
+end
+
+----------------------------------------
+-- Get WASD, pressed = true 
+
+function armor_fly_swim.get_wasd_state(controls)
+
+	local rtn = false 
+	
+	if controls.up == true or                                 
+       controls.down == true or                          
+	   controls.left == true or 
+	   controls.right == true then
+	   
+		rtn = true
+	end
+	
+	return rtn
+end
+
+----------------------------------------
 -- Check specific node fly/swim       --
 -- 1=player feet, 2=one below feet,   --
 --          Thanks Gundul             -- 
@@ -99,7 +157,7 @@ function crouch_wa(player,pos)
 		elseif angle >= 135 and angle <= 225 then                 -- -Z South
 			pos_w={x=pos.x,y=pos.y+1,z=pos.z-1}
 			
-		elseif angle > 225 and angle < 315 then                  -- +X East
+		elseif angle > 225 and angle < 315 then                   -- +X East
 			pos_w={x=pos.x+1,y=pos.y+1,z=pos.z}			
 		end
 
