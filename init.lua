@@ -51,7 +51,7 @@ armor_fly_swim.is_skinsdb  = minetest.get_modpath("skinsdb")
 -------------------------------------
 -- Adding new armor item for Capes --
 -------------------------------------
-if add_capes == true then
+if armor_fly_swim.add_capes == true then
 	if minetest.global_exists("armor") and armor.elements then
 		table.insert(armor.elements, "capes")
 	end
@@ -125,7 +125,7 @@ minetest.register_globalstep(function()
 		local ladder        = {}
 			  ladder.n 		= {is = false, pos = pos}
 			  ladder.n_a 	= {is = false, pos = {x=pos.x,y=pos.y +1,z=pos.z}}		
-			  ladder.n_b 	= {is = false, pos = {x=pos.x,y=pos.y -1,z=pos.z}} 
+			  ladder.n_b 	= {is = false, pos = {x=pos.x,y=pos.y -1,z=pos.z}}
 		local is_slab 		= crouch_wa(player,pos)  					-- Function specifically for Crouch-walk work around
 		local attack    	= ""
 		local ani_spd       = 30		
@@ -143,7 +143,8 @@ minetest.register_globalstep(function()
            pmeta:set_int("flyswim_std_under_slab", 0)		   
 		end
 
-		local vel = player:get_player_velocity()                         -- Need to replace this with get_velocity(), having issues making that work.		
+		local vel = player:get_velocity()
+
 	    local play_s = (math.sqrt(math.pow(math.abs(vel.x),2) + 
 		                math.pow(math.abs(vel.y),2) + 
 						math.pow(math.abs(vel.z),2) ))*3.6               -- basically 3D Pythagorean Theorem km/h
@@ -161,7 +162,7 @@ minetest.register_globalstep(function()
 		end
 		
 		-- get ladder nodes
-		for _,def in pairs(ladder) do
+		for k,def in pairs(ladder) do
 			local node = minetest.registered_nodes[minetest.get_node(def.pos).name] 
 			if node and node.climbable then
 				def.is = true
@@ -259,7 +260,7 @@ minetest.register_globalstep(function()
 			
 		elseif swim_sneak == true and
 			   swim_anim == true and
-			   (controls.jump or controls.sneak) and									      
+			   controls.sneak and									      
 			   node_down_fsable(pos,1,"s") and                    	 		 -- Node player standing in swimmable
 			   not attached_to then
 			   
