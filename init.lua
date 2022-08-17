@@ -200,25 +200,25 @@ minetest.register_globalstep(function()
 		   not controls.sneak and 
 		   not node_fsable(pos,2,"a") then
 		   
-				local animiation = "duck_std"
+			local animiation = "duck_std"
+			
+			-- when player moving
+			if controls_wasd then                              
+				local play_or_2 =player:get_physics_override()
+				pmeta:set_int("flyswim_std_under_slab", 1)
+				pmeta:set_float("flyswim_org_phy_or", play_or_2.speed)
+				player:set_physics_override({speed = play_or_2.speed*0.2})
 				
-				-- when player moving
-				if controls_wasd then                              
-					local play_or_2 =player:get_physics_override()
-					pmeta:set_int("flyswim_std_under_slab", 1)
-					pmeta:set_float("flyswim_org_phy_or", play_or_2.speed)
-					player:set_physics_override({speed = play_or_2.speed*0.2})
-					
-					animation = "duck" 
-				end
-				
-				if crouch_anim == true then
-					player_api.set_animation(player, animation ,ani_spd/2)
-				end
-				
-				player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.45, 0.3}})
-				player:set_properties({eye_height = 1.27})
-				if tdebug then minetest.debug("crouch catch") end				
+				animation = "duck" 
+			end
+			
+			if crouch_anim == true then
+				player_api.set_animation(player, animation ,ani_spd/2)
+			end
+			
+			player:set_properties({collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.45, 0.3}})
+			player:set_properties({eye_height = 1.27})
+			if tdebug then minetest.debug("crouch catch") end				
 
 		elseif swim_sneak and
 		       nc_node == 1 and
@@ -226,11 +226,11 @@ minetest.register_globalstep(function()
 		       not attached_to and			   
 		       not controls.sneak then
 			   
-			player_api.set_animation(player, "swim",ani_spd)
-			player:set_properties({collisionbox = {-0.4, 0, -0.4, 0.4, 0.5, 0.4}})
-			player:set_properties({eye_height = 0.7}) 
-			offset = 90
-			if tdebug then minetest.debug("swim through catch") end
+				player_api.set_animation(player, "swim",ani_spd)
+				player:set_properties({collisionbox = {-0.4, 0, -0.4, 0.4, 0.5, 0.4}})
+				player:set_properties({eye_height = 0.7}) 
+				offset = 90
+				if tdebug then minetest.debug("swim through catch") end
 				
 	-----------------------------
 	--      Climb Cases        --
