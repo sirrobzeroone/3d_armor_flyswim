@@ -93,7 +93,7 @@ player_api.register_model(player_mod, {
 		fall =      {x=355, y=364},
 		fall_atk =  {x=365, y=374},
 		duck_std =  {x=380, y=380},
-        duck =      {x=381, y=399},
+		duck =      {x=381, y=399},
 		climb =     {x=410, y=429},   
 	},
 })
@@ -118,18 +118,18 @@ minetest.register_globalstep(function()
 		local controls      = player:get_player_control()
 		local controls_wasd = armor_fly_swim.get_wasd_state(controls)
 		local attached_to   = player:get_attach()
-		local privs 		= minetest.get_player_privs(player:get_player_name())
-		local pos 			= player:get_pos()
-		local pmeta 		= player:get_meta()
-		local cur_anim 		= player_api.get_animation(player)		
+		local privs         = minetest.get_player_privs(player:get_player_name())
+		local pos           = player:get_pos()
+		local pmeta         = player:get_meta()
+		local cur_anim      = player_api.get_animation(player)		
 		local ladder        = {}
-			  ladder.n 		= {is = false, pos = pos}
-			  ladder.n_a 	= {is = false, pos = {x=pos.x,y=pos.y +1,z=pos.z}}		
-			  ladder.n_b 	= {is = false, pos = {x=pos.x,y=pos.y -1,z=pos.z}}
-		local is_slab 		= crouch_wa(player,pos)  					-- Function specifically for Crouch-walk work around
-		local attack    	= ""
+		      ladder.n      = {is = false, pos = pos}
+		      ladder.n_a    = {is = false, pos = {x=pos.x,y=pos.y +1,z=pos.z}}		
+		      ladder.n_b    = {is = false, pos = {x=pos.x,y=pos.y -1,z=pos.z}}
+		local is_slab       = crouch_wa(player,pos)
+		local attack        = ""
 		local ani_spd       = 30		
-		local offset 		= 0
+		local offset        = 0
 		local tdebug        = false
 		
 		-- reset player collisionbox, eye height, speed override 
@@ -140,14 +140,15 @@ minetest.register_globalstep(function()
 		-- back to what they were before fly_swim adjusted them
 		if pmeta:get_int("flyswim_std_under_slab") == 1 then                       		
 		   player:set_physics_override({speed = pmeta:get_float("flyswim_org_phy_or")})
-           pmeta:set_int("flyswim_std_under_slab", 0)		   
+		   pmeta:set_int("flyswim_std_under_slab", 0)		   
 		end
 
 		local vel = player:get_velocity()
-
-	    local play_s = (math.sqrt(math.pow(math.abs(vel.x),2) + 
+		
+		-- basically 3D Pythagorean Theorem km/h
+		local play_s = (math.sqrt(math.pow(math.abs(vel.x),2) + 
 		                math.pow(math.abs(vel.y),2) + 
-						math.pow(math.abs(vel.z),2) ))*3.6               -- basically 3D Pythagorean Theorem km/h
+		                math.pow(math.abs(vel.z),2) ))*3.6
 
 		-- Sets terminal velocity to about 100Km/hr beyond   --
         -- this speed chunk load issues become more noticable --		
@@ -220,16 +221,16 @@ minetest.register_globalstep(function()
 				if tdebug then minetest.debug("crouch catch") end				
 
 		elseif swim_sneak and
-			   nc_node == 1 and
-			   node_down_fsable(pos,1,"s") and
-			   not attached_to and			   
-			   not controls.sneak then
+		       nc_node == 1 and
+		       node_down_fsable(pos,1,"s") and
+		       not attached_to and			   
+		       not controls.sneak then
 			   
-				player_api.set_animation(player, "swim",ani_spd)
-				player:set_properties({collisionbox = {-0.4, 0, -0.4, 0.4, 0.5, 0.4}})
-				player:set_properties({eye_height = 0.7}) 
-				offset = 90
-				if tdebug then minetest.debug("swim through catch") end
+			player_api.set_animation(player, "swim",ani_spd)
+			player:set_properties({collisionbox = {-0.4, 0, -0.4, 0.4, 0.5, 0.4}})
+			player:set_properties({eye_height = 0.7}) 
+			offset = 90
+			if tdebug then minetest.debug("swim through catch") end
 				
 	-----------------------------
 	--      Climb Cases        --
