@@ -41,7 +41,7 @@ function armor_fly_swim.get_player_model()
 				   "3d_armor_trans.png"}
 	end
 
-	-- skins_db with 3d_armor or without
+	-- skins_db with 3d_armor or without (clothes_2 uses)
 	if armor_fly_swim.is_skinsdb then
 		player_mod = "skinsdb_3d_armor_character_5.b3d"
 		texture = {"blank.png",
@@ -72,71 +72,81 @@ function armor_fly_swim.get_wasd_state(controls)
 end
 
 ----------------------------------------
--- Check specific node fly/swim
--- 1=player feet, 2=one below feet,
--- Thanks Gundul
+-- Node above solid
 
-function node_fsable(pos,num,type)
+function armor_fly_swim.node_above_solid(pos)
 
-	local draw_ta = {"airlike"}
-	local draw_tl = {"liquid","flowingliquid"}
-	local compare = draw_ta
-	local node = minetest.get_node({x=pos.x,y=pos.y-(num-1),z=pos.z})
-	local n_draw
+	local node_check = minetest.get_node({x=pos.x,y=pos.y+1,z=pos.z})
+	local rtn = false 
+	
+	if minetest.registered_nodes[node_check.name] then
 
-	if minetest.registered_nodes[node.name] then
-		n_draw = minetest.registered_nodes[node.name].drawtype
-	else
-		n_draw = "normal"
+		local nc_draw = minetest.registered_nodes[node_check.name].drawtype
+
+		if nc_draw ~= "liquid" and
+		   nc_draw ~= "flowingliquid" and
+		   nc_draw ~= "airlike" then
+
+			rtn = true
+		end
 	end
-
-		if type == "s" then
-			compare = draw_tl
-		end
-
-		for k,v in ipairs(compare) do
-			if n_draw == v then
-				return true
-			end
-		end
-	return false
+	
+	return rtn
 end
 
 -----------------------------------------------
---  Check X number nodes down fly/Swimmable
+-- Get X number nodes down drawtype and return
+-- Thanks Gundul
+function armor_fly_swim.get_node_down_drawtype(pos,num)
 
-function node_down_fsable(pos,num,type)
-
-local draw_ta = {"airlike"}
-local draw_tl = {"liquid","flowingliquid"}
 local i = 0
 local nodes = {}
 local result ={}
-local compare = draw_ta
 	while (i < num ) do
 		table.insert(nodes, minetest.get_node({x=pos.x,y=pos.y-i,z=pos.z}))
 		i=i+1
 	end
 
-	if type == "s" then
-		compare = draw_tl
-	end
-
 	local n_draw
-	for k,v in pairs(nodes) do
+	
+	for k,node in pairs(nodes) do
 		local n_draw
-
-		if minetest.registered_nodes[v.name] then
-			n_draw = minetest.registered_nodes[v.name].drawtype
+		
+		if minetest.registered_nodes[node.name] then
+			n_draw = minetest.registered_nodes[node.name].drawtype
 		else
 			n_draw = "normal"
 		end
+		table.insert(result, n_draw)
+	end
+	return result 
+end
+
+
+-----------------------------------------------
+--  Check X number nodes down fly/swimmable
+
+function armor_fly_swim.node_down_check(nodes,num,type)
+
+local draw_ta = {"airlike"}
+local draw_tl = {"liquid","flowingliquid"}
+local compare = draw_ta
+local result = {}
+local i = 1
+
+	if type == "s" then
+		compare = draw_tl
+	end
+	
+	while (i <= num) do
+			local n_draw = nodes[i]
 
 			for k2,v2 in ipairs(compare) do
 				if n_draw == v2 then
 				  	table.insert(result,"t")
 				end
 			end
+		i = i+1
 	end
 
 	if #result == num then
@@ -145,6 +155,7 @@ local compare = draw_ta
 	    return false
 	end
 end
+
 
 ------------------------------------------
 -- Workaround for slab edge crouch

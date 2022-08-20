@@ -91,9 +91,9 @@ Crouching under - Simply walk through a gap 1.5 nodes tall. Player/character mus
 ---------------------------
 From MT Main Menu go to "Settings" then "All Settings" then "Mods" then "3d_armor_flyswim"
 
-**capes_add_to_3darmor** - Default is enabled - Makes capes an armor item avaliable via 3d_armor (1 test cape included)
+**capes_add_to_3darmor** - Default is disabled- Makes capes an armor item avaliable via 3d_armor (1 test cape included)
 
-**example_cape** - Default is enabled - The example cape "Someones Cape" is avaliable which grants fly_privs when worn and a 100% speed increase
+**example_cape** - Default is disabled- The example cape "Someones Cape" is avaliable which grants fly_privs when worn and a 100% speed increase
 
 **fly_anim** - Default is enabled - Will show the flying animation
 
