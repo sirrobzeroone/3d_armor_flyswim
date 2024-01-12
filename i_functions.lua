@@ -85,7 +85,8 @@ function armor_fly_swim.node_above_solid(pos)
 
 		if nc_draw ~= "liquid" and
 		   nc_draw ~= "flowingliquid" and
-		   nc_draw ~= "airlike" then
+		   nc_draw ~= "airlike" and
+		   nc_draw ~= "plantlike" then
 
 			rtn = true
 		end
@@ -128,7 +129,7 @@ end
 
 function armor_fly_swim.node_down_check(nodes,num,type)
 
-local draw_ta = {"airlike"}
+local draw_ta = {"airlike", "plantlike"}
 local draw_tl = {"liquid","flowingliquid"}
 local compare = draw_ta
 local result = {}
